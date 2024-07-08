@@ -1,11 +1,12 @@
 package com.aluracursos.screenmatch.model;
 
+import java.util.Optional;
 import java.util.OptionalDouble;
 
 public class Serie {
     private String titulo;
     private Integer totalTemporadas;
-    private double evaluacion;
+    private OptionalDouble evaluacion;
     private String poster;
     private Categoria genero;
     private String actores;
@@ -14,7 +15,11 @@ public class Serie {
     public Serie (DatosSerie datosSerie){
         this.titulo = datosSerie.titulo();
         this.totalTemporadas = datosSerie.totalTemporadas();
-        this.evaluacion = OptionalDouble.of(Double.valueOf(datosSerie.evaluacion())).orElse(0);
+        this.evaluacion = Optional.ofNullable(datosSerie.evaluacion())
+                .filter(evalStr -> !evalStr.equalsIgnoreCase("N/A")) // Filtrar "N/A"
+                .map(Double::parseDouble) // Convertir a double si es posible
+                .map(OptionalDouble::of) // Envolver en OptionalDouble
+                .orElse(OptionalDouble.empty()); // Valor por defecto si no se puede convertir
         this.poster = datosSerie.poster();
         this.genero = Categoria.fromString(datosSerie.genero().split(",") [0]);
         this.actores = datosSerie.actores();
@@ -23,12 +28,11 @@ public class Serie {
 
     @Override
     public String toString() {
-        return
+        return  ", genero=" + genero +
                 "titulo='" + titulo + '\'' +
                 ", totalTemporadas=" + totalTemporadas +
                 ", evaluacion=" + evaluacion +
                 ", poster='" + poster + '\'' +
-                ", genero=" + genero +
                 ", actores='" + actores + '\'' +
                 ", sinopsis='" + sinopsis + '\'';
     }
@@ -49,11 +53,11 @@ public class Serie {
         this.totalTemporadas = totalTemporadas;
     }
 
-    public double getEvaluacion() {
+    public OptionalDouble getEvaluacion() {
         return evaluacion;
     }
 
-    public void setEvaluacion(double evaluacion) {
+    public void setEvaluacion(OptionalDouble evaluacion) {
         this.evaluacion = evaluacion;
     }
 
