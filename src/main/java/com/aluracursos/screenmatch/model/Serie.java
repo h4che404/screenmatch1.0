@@ -78,7 +78,7 @@ public class Serie {
     }
 
     public String getActores() {
-        return actores;
+    return actores;
     }
 
     public void setActores(String actores) {
