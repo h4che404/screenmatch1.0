@@ -1,29 +1,44 @@
 package com.aluracursos.screenmatch.model;
 
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Type;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.OptionalDouble;
 
+@Entity
+@Table(name = "series")
+
+
 public class Serie {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long Id;
+    @Column(unique = true)
     private String titulo;
     private Integer totalTemporadas;
-    private OptionalDouble evaluacion;
+    private Double evaluacion;
     private String poster;
+    @Enumerated(EnumType.STRING)
     private Categoria genero;
     private String actores;
     private String sinopsis;
 
+    @OneToMany(mappedBy = "serie", cascade = CascadeType.ALL)
+    private List<Episodio> episodios;
+
+
+    public Serie(){}
+
     public Serie (DatosSerie datosSerie){
         this.titulo = datosSerie.titulo();
         this.totalTemporadas = datosSerie.totalTemporadas();
-        this.evaluacion = Optional.ofNullable(datosSerie.evaluacion())
-                .filter(evalStr -> !evalStr.equalsIgnoreCase("N/A")) // Filtrar "N/A"
-                .map(Double::parseDouble) // Convertir a double si es posible
-                .map(OptionalDouble::of) // Envolver en OptionalDouble
-                .orElse(OptionalDouble.empty()); // Valor por defecto si no se puede convertir
+        this.evaluacion = OptionalDouble.of(Double.parseDouble(datosSerie.evaluacion())).orElse(0);
         this.poster = datosSerie.poster();
         this.genero = Categoria.fromString(datosSerie.genero().split(",") [0]);
         this.actores = datosSerie.actores();
@@ -39,6 +54,14 @@ public class Serie {
                 ", poster='" + poster + '\'' +
                 ", actores='" + actores + '\'' +
                 ", sinopsis='" + sinopsis + '\'';
+    }
+
+    public long getId() {
+        return Id;
+    }
+
+    public void setId(long id) {
+        Id = id;
     }
 
     public String getTitulo() {
@@ -57,11 +80,11 @@ public class Serie {
         this.totalTemporadas = totalTemporadas;
     }
 
-    public OptionalDouble getEvaluacion() {
+    public Double getEvaluacion() {
         return evaluacion;
     }
 
-    public void setEvaluacion(OptionalDouble evaluacion) {
+    public void setEvaluacion(Double evaluacion) {
         this.evaluacion = evaluacion;
     }
 
@@ -95,5 +118,13 @@ public class Serie {
 
     public void setSinopsis(String sinopsis) {
         this.sinopsis = sinopsis;
+    }
+
+    public List<Episodio> getEpisodios() {
+        return episodios;
+    }
+
+    public void setEpisodios(List<Episodio> episodios) {
+        this.episodios = episodios;
     }
 }
